@@ -1,0 +1,78 @@
+##load library for NetCDF
+
+library(ncdf)
+
+
+##to open a ndcf file in R -- this file contains the entire grid for historical
+
+pr<- open.ncdf("D:/CMIP5_Climate_Data/examples/BCSD_0.125deg_pr_Amon_ACCESS1-0_historical_r1i1p1_195001-200512.nc", write=FALSE, readunlim=TRUE, verbose=FALSE)
+
+##show the summary of dimensions and variables
+
+pr
+
+##notice there are three dimensions (lat(222 rows), long (462 rows), and time.
+##The lat/long matrices produce an extent of  102,564 cells total (222 x 462).
+##There are 672 time periods (monthly data from Jan 1950 - Dec 2005)
+##there is also one variable (precipitation)  
+
+
+##define the dimensions
+
+x = get.var.ncdf( pr, "longitude")
+y = get.var.ncdf( pr, "latitude")
+time = get.var.ncdf( pr, "time")
+
+##get size of all dimensions
+
+varsize  = pr$var[['pr']]$varsize 
+
+xsize=varsize[1]
+ysize=varsize[2]
+timesize=varsize[3]
+
+##let's look at the extent through a plot of the x,y values
+
+
+
+##notice there are 672 time periods (monthly data from Jan 1950 - Dec 2005)
+##to get a specific time period you need a start and count for each dimension
+##let's start with the first time period Jan 1950 and read the entire geographic extent
+##we set up our start as (x,y,time period)
+
+start<-c(1,1,1)  ## we start at the first dimensions (x,y) and first period 1; in this case Jan 1950
+count<-c(varsize[1], varsize[2], 1)  ##the last number is how many to count; in this case 1 month
+
+
+
+##get the values for precipitation for Jan 1950 for the entire extent
+
+z = get.var.ncdf(nc=pr,varid="pr",start,count)
+
+
+
+##plot the results
+
+filled.contour(x[1:xsize],y[1:ysize],z)  ##this plots the three matrices combined
+
+
+
+##change color ramps and plot
+
+image(x,y,z,col = rainbow(10,0.9,1,start=0.6,end=.9,gamma=1,alpha=1),useRaster=TRUE)
+
+
+
+##TO PULL OUT DATA FOR MORE THAN ONE TIME PERIOD
+
+
+##pull out maximum temperature for 12 months in 2000
+
+start<-c(1,1,601)  ## we start at the first dimensions (x,y) and 601th period; in this case Jan 2000
+count<-c(varsize[1], varsize[2], 12)  ##we are pulling out 12 months of data this time
+
+z = get.var.ncdf(nc=pr,varid="pr",start,count)
+
+
+
+
